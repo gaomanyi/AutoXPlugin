@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <id>org.autojs.autojs.devplugin</id>
+    <name>AutoX插件</name>
+    <vendor email="your.email@example.com" url="https://github.com/yourusername/AutoXPlugin">YourName</vendor>
+
+    <description><![CDATA[
+    Plugin for transferring files to devices via WebSocket in a local network.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="AutoXPlugin" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="org.autojs.autojs.devplugin.toolwindow.AutoXToolWindowFactory"/>
+        <projectConfigurable parentId="tools" 
+                             instance="org.autojs.autojs.devplugin.settings.AutoXSettingsConfigurable"
+                             id="org.autojs.autojs.devplugin.settings.AutoXSettingsConfigurable" 
+                             displayName="AutoX Plugin"/>
+    </extensions>
+
+    <actions>
+        <action id="org.autojs.autojs.devplugin.action.SendFileAction" 
+                class="org.autojs.autojs.devplugin.action.SendFileAction"
+                text="Send to Device" 
+                description="Send file to connected device via WebSocket">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin> 
