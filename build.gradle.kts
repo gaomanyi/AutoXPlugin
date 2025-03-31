@@ -6,7 +6,7 @@ plugins {
 
 
 group = "org.autojs.autojs"
-version = "1.0-SNAPSHOT"
+version = "10.00.00" //因为安卓客户端那边设置了,有心跳的交互逻辑,服务器版本应该在11090(去掉中间的点)以上
 
 repositories {
     mavenCentral()

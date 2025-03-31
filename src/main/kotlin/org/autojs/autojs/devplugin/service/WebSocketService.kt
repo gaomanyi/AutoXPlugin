@@ -1,10 +1,12 @@
 package org.autojs.autojs.devplugin.service
 
 import com.google.gson.Gson
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -17,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.autojs.autojs.devplugin.message.Hello
 import org.autojs.autojs.devplugin.message.HelloResponse
 import org.autojs.autojs.devplugin.message.Message
 import org.autojs.autojs.devplugin.message.MessageType
@@ -29,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service(Service.Level.PROJECT)
 class WebSocketService(project: Project) : Disposable {
+    private val DEBUG = false
     private val logger = Logger.getInstance(WebSocketService::class.java)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val gson = Gson()
@@ -147,11 +151,18 @@ class WebSocketService(project: Project) : Disposable {
             }
         }
     }
+
+    // 获取版本号的方法
+    fun getPluginVersion(): String {
+        val pluginId = PluginId.getId("org.autojs.autojs.devplugin") // 替换为您的插件ID
+        val plugin = PluginManagerCore.getPlugin(pluginId)
+        return plugin?.version ?: "Unknown"
+    }
     
     private suspend fun handleIncomingMessage(message: String, sessionId: String) {
         try {
             val msg = gson.fromJson(message, Message::class.java)
-            
+            logger.info("Received message from client $sessionId: $message")
             when (msg.type) {
                 MessageType.PING -> {
                     // Respond to ping message
@@ -161,24 +172,42 @@ class WebSocketService(project: Project) : Disposable {
                     )
                     connections[sessionId]?.send(gson.toJson(pong))
                 }
+                MessageType.HELLO ->{
+                    // 解析 data 为 Hello 对象
+                    val helloData = try {
+                        if (msg.data is Map<*, *>) {
+                            gson.fromJson(gson.toJson(msg.data), Hello::class.java)
+                        } else {
+                            val jsonObject = gson.fromJson(message, com.google.gson.JsonObject::class.java)
+                            val dataObject = jsonObject.getAsJsonObject("data")
+                            gson.fromJson(dataObject, Hello::class.java)
+                        }
+                    } catch (e: Exception) {
+                        logger.error("Failed to parse Hello data", e)
+                        null
+                    }
+                    // 如果成功解析到 Hello 数据
+                    if (helloData != null) {
+                        // 构建并发送响应
+                        val response = HelloResponse(
+                            data = "ok",
+                            debug = DEBUG,
+                            //`${Date.now()}_${Math.random()}`;
+                            messageId = "${System.currentTimeMillis()}_${Math.random()}",
+                            type = MessageType.HELLO,
+                            version = getPluginVersion()
+                        )
+                        connections[sessionId]?.send(gson.toJson(response))
+                        logger.info("Client connected: $sessionId - Device: ${helloData.deviceName}")
 
-                "hello" -> {
-                    // Respond to hello message
-                    val response = HelloResponse(
-                        data = "connected",
-                        debug = false,
-                        messageId = "",
-                        type = "hello_response",
-                        version = "1.0"
-                    )
-                    connections[sessionId]?.send(gson.toJson(response))
-                    logger.info("Client connected: $sessionId")
-                    
-                    // Update connected devices list in settings
-                    val connectedDevices = settings.state.lastConnectedDevices.toMutableList()
-                    if (!connectedDevices.contains(sessionId)) {
-                        connectedDevices.add(sessionId)
-                        settings.state.lastConnectedDevices = connectedDevices
+                        // 更新已连接设备列表
+                        val connectedDevices = settings.state.lastConnectedDevices.toMutableList()
+                        if (!connectedDevices.contains(sessionId)) {
+                            connectedDevices.add(sessionId)
+                            settings.state.lastConnectedDevices = connectedDevices
+                        }
+                    } else {
+                        logger.warn("收到了Hello消息，但无法解析Hello Data")
                     }
                 }
                 else -> {
