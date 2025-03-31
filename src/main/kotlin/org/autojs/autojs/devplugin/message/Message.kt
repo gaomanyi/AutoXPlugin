@@ -41,7 +41,7 @@ data class Hello(
     @SerializedName("client_version")
     val clientVersion: Int,
     @SerializedName("device_id")
-    val deviceId: String,
+    val deviceId: String? = null,
     @SerializedName("sdk_version")
     val sdkVersion: Int
 )
