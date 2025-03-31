@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.autojs.autojs.devplugin.message.HelloResponse
 import org.autojs.autojs.devplugin.message.Message
+import org.autojs.autojs.devplugin.message.MessageType
 import org.autojs.autojs.devplugin.settings.AutoXSettings
 import org.autojs.autojs.devplugin.util.NetworkUtil
 import java.io.InputStream
@@ -152,6 +153,15 @@ class WebSocketService(project: Project) : Disposable {
             val msg = gson.fromJson(message, Message::class.java)
             
             when (msg.type) {
+                MessageType.PING -> {
+                    // Respond to ping message
+                    val pong = Message(
+                        type = MessageType.PONG,
+                        data = msg.data //将ping消息传过来的System.currentTimeMillis()原封不动返回
+                    )
+                    connections[sessionId]?.send(gson.toJson(pong))
+                }
+
                 "hello" -> {
                     // Respond to hello message
                     val response = HelloResponse(
