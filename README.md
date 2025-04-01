@@ -1,7 +1,7 @@
 # AutoXPlugin for IntelliJ IDEA
 
 A powerful plugin for IntelliJ IDEA that allows for easy file transfer to devices on your local network via WebSocket.
-
+这是一个IntelliJ IDEA插件，用于开发AutoX.js的配套插件,如果你还没有AutoX.js程序,请访问[AutoX.js](https://github.com/aiselp/AutoX)
 ## Features
 
 - Simple WebSocket server that runs directly in your IDE
@@ -38,7 +38,7 @@ The plugin ZIP will be available in `build/distributions/`
 
 ## Requirements
 
-- IntelliJ IDEA 2023.1 or newer
+- IntelliJ IDEA 2024.1 or newer
 - Java 17 or newer
 
 ## License

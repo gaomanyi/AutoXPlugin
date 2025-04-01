@@ -6,7 +6,7 @@ plugins {
 
 
 group = "org.autojs.autojs"
-version = "10.00.00" //因为安卓客户端那边设置了,有心跳的交互逻辑,服务器版本应该在11090(去掉中间的点)以上
+version = "241.0.1" //因为安卓客户端那边设置了,有心跳的交互逻辑,服务器版本应该在11090(去掉中间的点)以上
 
 repositories {
     mavenCentral()
@@ -38,6 +38,12 @@ dependencies {
     // SLF4J for logging
     implementation("org.slf4j:slf4j-api:2.0.9")
     implementation("ch.qos.logback:logback-classic:1.4.12")
+
+    // Test dependencies
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("org.mockito:mockito-core:5.10.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
 
 tasks {
@@ -48,6 +54,11 @@ tasks {
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
+    }
+
+    // Configure test task
+    test {
+        useJUnitPlatform()
     }
 
     patchPluginXml {

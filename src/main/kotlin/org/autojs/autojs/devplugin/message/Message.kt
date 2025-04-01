@@ -46,11 +46,12 @@ data class Hello(
     val sdkVersion: Int
 )
 
+
 //消息类型
 object MessageType {
     const val HELLO = "hello"
     const val PING = "ping"
     const val PONG = "pong"
+    const val LOG = "log"
     const val CLOSE = "close"
-    const val BYTES_COMMAND = "bytes_command"
 }
