@@ -62,13 +62,13 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
     private val startServerButton = JButton("启动服务", AllIcons.Actions.Execute).apply {
         addActionListener { startServer() }
         alignmentX = Component.LEFT_ALIGNMENT
-        border = JBUI.Borders.empty(5, 10, 5, 10)
+        border = JBUI.Borders.empty(5, 10)
     }
     
     private val stopServerButton = JButton("结束服务", IconLoader.getDisabledIcon(AllIcons.Actions.Suspend)).apply {
         addActionListener { stopServer() }
         alignmentX = Component.LEFT_ALIGNMENT
-        border = JBUI.Borders.empty(5, 10, 5, 10)
+        border = JBUI.Borders.empty(5, 10)
         isEnabled = false
     }
     
@@ -109,10 +109,10 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
     }
     
     // Timer to periodically update connected devices count and list (as a backup)
-    private val updateTimer = Timer(5000, ActionListener {
+    private val updateTimer = Timer(5000) {
         updateDevicesList()
-    })
-    
+    }
+
     private val qrCodePanel = object : JPanel() {
         override fun paintComponent(g: Graphics) {
             super.paintComponent(g)
@@ -161,7 +161,7 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
     // 创建按钮面板
     private val buttonPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
-        border = JBUI.Borders.empty(0, 0, 10, 0)
+        border = JBUI.Borders.emptyBottom(10)
         
         // 添加按钮
         add(startServerButton)
@@ -271,10 +271,56 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
         // Start the update timer (as a backup)
         updateTimer.start()
         
+        // 立即同步当前服务状态和已连接设备列表
+        syncServiceState()
+        
         // Check if server should auto-start
         if (settings.state.autoStartServer && !webSocketService.isRunning()) {
             startServer()
         }
+    }
+    
+    /**
+     * 同步当前服务状态和已连接设备
+     * 当打开新项目时调用，确保UI状态与服务状态一致
+     */
+    private fun syncServiceState() {
+        // 同步服务状态
+        if (webSocketService.isRunning()) {
+            // 获取服务地址和生成二维码
+            serverAddress = webSocketService.getServerAddress()
+            
+            if (serverAddress != null) {
+                qrCodeImage = QRCodeUtil.generateQRCode(serverAddress!!)
+                statusMessage = "服务运行在: $serverAddress"
+                
+                // 更新按钮状态
+                startServerButton.isEnabled = false
+                stopServerButton.isEnabled = true
+                stopServerButton.icon = AllIcons.Actions.Suspend
+            } else {
+                statusMessage = "服务运行，但无法确定IP地址"
+            }
+            
+            // 更新设备列表
+            updateDevicesList()
+        } else {
+            statusMessage = "服务未运行"
+            qrCodeImage = null
+            serverAddress = null
+            deviceTableModel.clearDevices()
+            
+            // 更新按钮状态
+            startServerButton.isEnabled = true
+            stopServerButton.isEnabled = false
+            stopServerButton.icon = IconLoader.getDisabledIcon(AllIcons.Actions.Suspend)
+        }
+        
+        // 更新Stop All按钮状态
+        updateStopAllButtonState()
+        
+        // 刷新UI
+        refreshUI()
     }
     
     private fun startServer() {
@@ -538,7 +584,7 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
         val logEntry = "[$timestamp] [$deviceName] $formattedMessage\n"
         
         // 使用 invokeLater 确保在 EDT 线程中更新 UI
-        javax.swing.SwingUtilities.invokeLater {
+        SwingUtilities.invokeLater {
             val doc = logTextPane.document as StyledDocument
             val length = doc.length
             
