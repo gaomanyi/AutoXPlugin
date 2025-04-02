@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.autojs.autojs.devplugin.i18n.I18n
 import org.autojs.autojs.devplugin.service.ConnectedDevice
 import org.autojs.autojs.devplugin.service.Helper
 import org.autojs.autojs.devplugin.service.SharedWebSocketService
@@ -44,7 +45,7 @@ abstract class BaseFileAction : AnAction() {
      * 判断该动作是否可用于当前文件/文件夹
      */
     protected abstract fun isActionAvailable(file: VirtualFile?): Boolean
-    
+
     /**
      * 返回生成的命令
      */
@@ -53,12 +54,12 @@ abstract class BaseFileAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
-        
+
         // 检查当前文件是否适用于此操作
         if (virtualFile != null && !isActionAvailable(virtualFile)) {
             return
         }
-        
+
         val webSocketService = SharedWebSocketService.getInstance()
 
         if (!webSocketService.isRunning()) {
@@ -72,16 +73,16 @@ abstract class BaseFileAction : AnAction() {
             logger.warn("No connected devices")
             showErrorNotification(
                 project = project,
-                title = "No devices connected",
-                content = "No devices are connected to send files to"
+                title = I18n.msg("device.connect.none"),
+                content = I18n.msg("device.connect.none.detail")
             )
             return
         }
         //如果只有一个设备连接,就不需要选择
         if (connectedDevices.size == 1) {
             val device = connectedDevices[0]
-            handleSendAction(project,virtualFile,webSocketService, listOf(device))
-        }else{
+            handleSendAction(project, virtualFile, webSocketService, listOf(device))
+        } else {
             // 显示设备选择对话框
             val isDirectory = virtualFile?.isDirectory ?: false
             val dialog = DeviceSelectionDialog(
@@ -112,26 +113,26 @@ abstract class BaseFileAction : AnAction() {
                 logger.error("Cannot send null folder")
                 showErrorNotification(
                     project = project,
-                    title = "Error preparing folder",
-                    content = "No folder specified for sending"
+                    title = I18n.msg("device.sent.folder.none"),
+                    content = I18n.msg("device.sent.folder.none.detail")
                 )
                 return
             }
-            
+
             if (!folder.isDirectory) {
                 logger.error("Not a directory: ${folder.path}")
                 showErrorNotification(
                     project = project,
-                    title = "Error preparing folder",
-                    content = "'${folder.name}' is not a directory"
+                    title = I18n.msg("device.sent.folder.none"),
+                    content = I18n.msg("device.sent.folder.none.detail2", folder.name)
                 )
                 return
             }
-            
+
             val byteStream = ByteArrayOutputStream() // 用来获取压缩后的字节流
             val outputStream = ZipOutputStream(byteStream)
             var fileCount = 0
-            
+
             // 文件夹基础路径，用于计算相对路径
             val basePath = folder.path + "/"
 
@@ -140,14 +141,14 @@ abstract class BaseFileAction : AnAction() {
                 if (!childFile.isDirectory) {
                     try {
                         val byteArr = childFile.contentsToByteArray()
-                        
+
                         // 直接计算文件相对于基础文件夹的路径
                         val relativePath = if (childFile.path.startsWith(basePath)) {
                             childFile.path.substring(basePath.length)
                         } else {
                             childFile.name
                         }
-                        
+
                         outputStream.putNextEntry(ZipEntry(relativePath))
                         outputStream.write(byteArr)
                         outputStream.closeEntry() // 结束当前条目的写入
@@ -166,8 +167,8 @@ abstract class BaseFileAction : AnAction() {
                 logger.warn("No files found in ${folder.path}")
                 showErrorNotification(
                     project = project,
-                    title = "Empty content",
-                    content = "No files found to send"
+                    title = I18n.msg("device.sent.file.none"),
+                    content = I18n.msg("device.sent.file.none.detail")
                 )
                 return
             }
@@ -181,18 +182,23 @@ abstract class BaseFileAction : AnAction() {
 
                     // 发送给选定的设备
                     webSocketService.sendCommandToDevices(bytes, command, selectedDevices)
-                    
+
                     showNotification(
                         project = project,
-                        title = "Folder sent",
-                        content = "Folder '${folder.name}' with $fileCount file(s) sent to ${if (selectedDevices.isEmpty()) "all connected devices" else "${selectedDevices.size} device(s)"}"
+                        title = I18n.msg("device.sent.folder.success"),
+                        content = I18n.msg(
+                            "device.sent.folder.success.detail",
+                            folder.name,
+                            fileCount,
+                            if (selectedDevices.isEmpty()) I18n.msg("device.connect.all") else "${selectedDevices.size}"
+                        )
                     )
                 } catch (e: Exception) {
                     logger.error("Error sending zip: ${e.message}", e)
                     showErrorNotification(
                         project = project,
-                        title = "Error sending",
-                        content = "Failed to send '${folder.name}': ${e.message}"
+                        title = I18n.msg("device.sent.folder.failure"),
+                        content = I18n.msg("device.sent.folder.failure.detail", folder.name, e.message ?: "")
                     )
                 }
             }
@@ -200,12 +206,12 @@ abstract class BaseFileAction : AnAction() {
             logger.error("Error processing ${folder?.path}", e)
             showErrorNotification(
                 project = project,
-                title = "Error preparing",
-                content = "Failed to prepare '${folder?.name}' for sending: ${e.message}"
+                title = I18n.msg("device.sent.folder.failure"),
+                content = I18n.msg("device.sent.folder.failure.detail", folder?.name.orEmpty(), e.message ?: "")
             )
         }
     }
-    
+
     /**
      * 发送脚本文件（不压缩，直接发送内容）
      */
@@ -221,35 +227,42 @@ abstract class BaseFileAction : AnAction() {
                 logger.error("Cannot send null file")
                 showErrorNotification(
                     project = project,
-                    title = "Error sending script",
-                    content = "No file specified for sending"
+                    title = I18n.msg("device.sent.script.failure"),
+                    content = I18n.msg("device.sent.script.failure.detail")
                 )
                 return
             }
-            
+
             // 读取文件内容
             val content = String(file.contentsToByteArray())
             val fileName = getFullPath(file)
-            
+
             // 发送脚本内容
             scope.launch {
                 try {
                     val command = commandType(fileName, content)
-                    
+
                     // 发送给选定的设备
                     webSocketService.sendTextCommandToDevices(command, selectedDevices)
-                    
+
                     showNotification(
                         project = project,
-                        title = "Script sent",
-                        content = "Script '${file.name}' sent to ${if (selectedDevices.isEmpty()) "all connected devices" else "${selectedDevices.size} device(s)"}"
+                        title = I18n.msg("device.sent.script.success"),
+                        content = I18n.msg(
+                            "device.sent.script.success.detail",
+                            file.name,
+                            if (selectedDevices.isEmpty()) I18n.msg("device.connect.all") else "${selectedDevices.size}"
+                        )
                     )
                 } catch (e: Exception) {
                     logger.error("Error sending script: ${e.message}", e)
                     showErrorNotification(
                         project = project,
-                        title = "Error sending script",
-                        content = "Failed to send '${file.name}': ${e.message}"
+                        title = I18n.msg("device.sent.script.failure"),
+                        content = I18n.msg(
+                            "device.sent.script.failure.detail2",
+                            file.name, e.message ?: ""
+                        )
                     )
                 }
             }
@@ -257,12 +270,16 @@ abstract class BaseFileAction : AnAction() {
             logger.error("Error reading file ${file?.path}", e)
             showErrorNotification(
                 project = project,
-                title = "Error reading file",
-                content = "Failed to read '${file?.name}': ${e.message}"
+                title = I18n.msg("device.read.script.failure"),
+                content = I18n.msg(
+                    "device.read.script.failure.detail",
+                    file?.name.orEmpty(),
+                    e.message ?: ""
+                )
             )
         }
     }
-    
+
     /**
      * 发送控制命令（如stop, stopAll等）
      */
@@ -278,33 +295,40 @@ abstract class BaseFileAction : AnAction() {
                 logger.error("Cannot send control command for null file")
                 showErrorNotification(
                     project = project,
-                    title = "Error sending command",
-                    content = "No file specified for command"
+                    title = I18n.msg("device.sent.script.failure"),
+                    content = I18n.msg("device.sent.script.failure.detail")
                 )
                 return
             }
-            
+
             val fileName = getFullPath(file)
-            
+
             // 发送控制命令
             scope.launch {
                 try {
                     val command = commandType(fileName)
-                    
+
                     // 发送给选定的设备
                     webSocketService.sendTextCommandToDevices(command, selectedDevices)
-                    
+
                     showNotification(
                         project = project,
-                        title = "Command sent",
-                        content = "Control command for '${file.name}' sent to ${if (selectedDevices.isEmpty()) "all connected devices" else "${selectedDevices.size} device(s)"}"
+                        title = I18n.msg("device.sent.script.success"),
+                        content = I18n.msg(
+                            "device.sent.script.success.detail",
+                            file.name,
+                            if (selectedDevices.isEmpty()) I18n.msg("device.connect.all") else "${selectedDevices.size}"
+                        )
                     )
                 } catch (e: Exception) {
                     logger.error("Error sending control command: ${e.message}", e)
                     showErrorNotification(
                         project = project,
-                        title = "Error sending command",
-                        content = "Failed to send command for '${file.name}': ${e.message}"
+                        title = I18n.msg("device.sent.script.failure"),
+                        content = I18n.msg(
+                            "device.sent.script.failure.detail2",
+                            file.name, e.message ?: ""
+                        )
                     )
                 }
             }
@@ -312,15 +336,18 @@ abstract class BaseFileAction : AnAction() {
             logger.error("Error sending control command for ${file?.path}", e)
             showErrorNotification(
                 project = project,
-                title = "Error sending command",
-                content = "Failed to send command for '${file?.name}': ${e.message}"
+                title = I18n.msg("device.sent.script.failure"),
+                content = I18n.msg(
+                    "device.sent.script.failure.detail2",
+                    file?.name.orEmpty(), e.message ?: ""
+                )
             )
         }
     }
-    
+
     /**
      * 获取文件或文件夹的完整路径
-     * 
+     *
      * @param file 要获取路径的文件或文件夹
      * @return 完整路径，文件包含文件名和后缀，文件夹是文件夹全路径
      */
@@ -333,18 +360,18 @@ abstract class BaseFileAction : AnAction() {
         val project = e.project
         val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
         val webSocketService = SharedWebSocketService.getInstance()
-        
+
         // 判断动作是否可用
-        e.presentation.isEnabled = project != null && 
-                                  (virtualFile == null || isActionAvailable(virtualFile)) && 
-                                  webSocketService.isRunning() == true &&
-                                  webSocketService.getConnectedDeviceCount() > 0
+        e.presentation.isEnabled = project != null &&
+                (virtualFile == null || isActionAvailable(virtualFile)) &&
+                webSocketService.isRunning() == true &&
+                webSocketService.getConnectedDeviceCount() > 0
     }
-    
+
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT
     }
-    
+
     /**
      * 检查文件夹是否包含指定文件
      */
@@ -352,7 +379,7 @@ abstract class BaseFileAction : AnAction() {
         if (folder == null || !folder.isDirectory) return false
         return folder.children.any { it.name == fileName }
     }
-    
+
     /**
      * 检查文件扩展名是否是JavaScript文件
      */
@@ -361,25 +388,25 @@ abstract class BaseFileAction : AnAction() {
         val extension = file.extension?.lowercase() ?: ""
         return extension == "js" || extension == "cjs" || extension == "mjs"
     }
-    
+
     /**
      * 显示通知
      */
     protected fun showNotification(project: Project?, title: String, content: String) {
         if (project == null) return
-        
+
         NotificationGroupManager.getInstance()
             .getNotificationGroup("AutoX Plugin Notifications")
             .createNotification(title, content, NotificationType.INFORMATION)
             .notify(project)
     }
-    
+
     /**
      * 显示错误通知
      */
     protected fun showErrorNotification(project: Project?, title: String, content: String) {
         if (project == null) return
-        
+
         NotificationGroupManager.getInstance()
             .getNotificationGroup("AutoX Plugin Notifications")
             .createNotification(title, content, NotificationType.ERROR)

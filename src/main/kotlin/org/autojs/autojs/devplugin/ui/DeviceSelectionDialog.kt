@@ -6,6 +6,7 @@ import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.Align
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.panel
+import org.autojs.autojs.devplugin.i18n.I18n
 import org.autojs.autojs.devplugin.service.ConnectedDevice
 import javax.swing.JComponent
 
@@ -18,40 +19,41 @@ class DeviceSelectionDialog(
     private val fileCount: Int = 1,
     private val isDirectory: Boolean = false
 ) : DialogWrapper(project) {
-    
+
     private val checkboxes = mutableMapOf<ConnectedDevice, JBCheckBox>()
-    private val selectAllCheckbox = JBCheckBox("全选").apply {
+    private val selectAllCheckbox = JBCheckBox(I18n.msg("device.select.all")).apply {
         addActionListener {
             val selected = isSelected
             checkboxes.values.forEach { it.isSelected = selected }
         }
     }
-    
+
     init {
-        title = if (isDirectory) "选择接收文件夹的设备" else "选择接收文件的设备"
+        title = if (isDirectory) I18n.msg("device.select.receive.folder") else I18n.msg("device.select.receive.file")
         init()
     }
-    
+
     override fun createCenterPanel(): JComponent {
         return panel {
             // Title row
             row {
-                val messageText = if (isDirectory) "选择要发送文件夹到哪些设备" else if (fileCount == 1) "选择要发送文件到哪些设备" else "选择要发送 $fileCount 个文件到哪些设备"
+                val messageText =
+                    if (isDirectory) I18n.msg("device.select.send.folder") else if (fileCount == 1) I18n.msg("device.select.send.file") else I18n.msg("device.select.send.file.hint",fileCount)
                 label(messageText)
                     .bold()
                     .align(Align.CENTER)
             }
-            
+
             // Select all option
             row {
                 cell(selectAllCheckbox)
                     .align(AlignX.LEFT)
             }
-            
+
             // Device list
             if (devices.isEmpty()) {
                 row {
-                    label("没有连接的设备")
+                    label(I18n.msg("device.connect.none"))
                         .align(Align.CENTER)
                 }
             } else {
@@ -63,17 +65,17 @@ class DeviceSelectionDialog(
                         }
                         cell(checkbox)
                             .align(AlignX.LEFT)
-                        
+
                         checkboxes[device] = checkbox
                     }
                 }
-                
+
                 // Default all selected
                 selectAllCheckbox.isSelected = true
             }
         }
     }
-    
+
     /**
      * Get the list of selected devices
      */

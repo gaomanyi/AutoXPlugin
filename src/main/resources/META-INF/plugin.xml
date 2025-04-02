@@ -8,6 +8,7 @@
         可以访问 https://github.com/aiselp/AutoX 下载AutoX.js
     </description>
     <depends>com.intellij.modules.platform</depends>
+    <resource-bundle>messages.LanguageBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="AutoX"
@@ -24,10 +25,9 @@
 
     <actions>
         <!-- 文件夹操作组 -->
-        <group id="org.autojs.autojs.devplugin.action.FolderActionsGroup" 
-               text="AutoX Dir"
+        <group id="org.autojs.autojs.devplugin.action.FolderActionsGroup"
+               text="AutoX Project"
                icon="/icon/autojs.svg"
-               description="AutoX Folder Actions" 
                popup="true">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="org.autojs.autojs.devplugin.action.SaveProjectAction" 
