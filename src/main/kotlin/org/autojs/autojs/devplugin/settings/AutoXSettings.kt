@@ -15,7 +15,7 @@ class AutoXSettings : PersistentStateComponent<AutoXSettings.State> {
     data class State(
         var port: Int = 9317,
         var autoStartServer: Boolean = false,
-        var lastConnectedDevices: List<String> = emptyList()
+        var lastConnectedDevices: List<String> = emptyList(),
     )
     
     override fun getState(): State = myState

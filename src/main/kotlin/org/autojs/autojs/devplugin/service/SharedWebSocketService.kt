@@ -55,7 +55,7 @@ class SharedWebSocketService : Disposable {
     private val connListeners = mutableListOf<ConnectionListener>()
 
     init {
-        // Auto-start the server if enabled in settings
+//         Auto-start the server if enabled in settings
         if (settings.state.autoStartServer) {
             start(settings.state.port)
         }

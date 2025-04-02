@@ -44,3 +44,5 @@ The plugin ZIP will be available in `build/distributions/`
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
+
+感谢 https://github.com/JetBrains/intellij-sdk-code-samples 示例代码库

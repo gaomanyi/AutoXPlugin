@@ -80,6 +80,11 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
             sendStopAllCommand()
         }
     }
+    init {
+        if (settings.state.autoStartServer) {
+            webSocketService.start(settings.state.port)
+        }
+    }
 
     // 设备表格数据模型
     private val deviceTableModel = DeviceTableModel()

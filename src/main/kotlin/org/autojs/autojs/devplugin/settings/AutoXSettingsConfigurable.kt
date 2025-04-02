@@ -13,41 +13,48 @@ class AutoXSettingsConfigurable : Configurable {
     private var port = settings.state.port
     private var autoStart = settings.state.autoStartServer
 
-    override fun getDisplayName(): String = "AutoX"+I18n.msg("settings")
+
+    override fun getDisplayName(): String = "AutoX" + I18n.msg("settings")
 
     override fun createComponent(): JComponent {
         return panel {
-            row() {
-                intTextField()
-                    .label(I18n.msg("service.ws.port"))
-                    .text(port.toString())
-                    .onChanged {
-                        try {
-                            port = it.text.toInt()
-                        } catch (e: NumberFormatException) {
-                            // 忽略无效输入
+            group(I18n.msg("service.settings")) {
+                row() {
+                    intTextField()
+                        .label(I18n.msg("service.ws.port"))
+                        .text(port.toString())
+                        .onChanged {
+                            try {
+                                port = it.text.toInt()
+                            } catch (e: NumberFormatException) {
+                                // 忽略无效输入
+                            }
                         }
-                    }
-                    .columns(5)
-                    .focused()
+                        .columns(5)
+                        .focused()
+                }
+
+                row {
+                    checkBox(I18n.msg("service.auto.start"))
+                        .bindSelected({ autoStart }, { autoStart = it })
+                }
+
+                row {
+                    comment(I18n.msg("service.setting.hint"))
+                }
             }
 
-            row {
-                checkBox(I18n.msg("service.auto.start"))
-                    .bindSelected({ autoStart }, { autoStart = it })
-            }
-
-            row {
-                comment(I18n.msg("service.setting.hint"))
-            }
         }
     }
 
     override fun isModified(): Boolean {
-        return port != settings.state.port || autoStart != settings.state.autoStartServer
+        return port != settings.state.port ||
+                autoStart != settings.state.autoStartServer
     }
 
     override fun apply() {
+
+        // 保存端口和自动启动设置
         settings.state.port = port
         settings.state.autoStartServer = autoStart
     }
