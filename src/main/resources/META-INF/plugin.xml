@@ -32,12 +32,14 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="org.autojs.autojs.devplugin.action.SaveProjectAction" 
                     class="org.autojs.autojs.devplugin.action.SaveProjectAction"
+                    icon="/icon/save.svg"
                     text="Save Project to Device" 
                     description="Save project to connected devices">
             </action>
             <action id="org.autojs.autojs.devplugin.action.RunProjectAction" 
                     class="org.autojs.autojs.devplugin.action.RunProjectAction"
-                    text="Run Project on Device" 
+                    text="Run Project on Device"
+                    icon="/icon/run.svg"
                     description="Run project on connected devices (works on project folders or package.json/project.json files)">
             </action>
         </group>
@@ -51,22 +53,26 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
             <action id="org.autojs.autojs.devplugin.action.SaveScriptAction" 
                     class="org.autojs.autojs.devplugin.action.SaveScriptAction"
-                    text="Save Script to Device" 
+                    text="Save Script to Device"
+                    icon="/icon/save.svg"
                     description="Save JavaScript file (.js, .cjs, .mjs) to connected devices">
             </action>
             <action id="org.autojs.autojs.devplugin.action.RunScriptAction" 
                     class="org.autojs.autojs.devplugin.action.RunScriptAction"
-                    text="Run Script on Device" 
+                    text="Run Script on Device"
+                    icon="/icon/run.svg"
                     description="Run JavaScript file (.js, .cjs, .mjs) on connected devices">
             </action>
             <action id="org.autojs.autojs.devplugin.action.ReRunScriptAction" 
                     class="org.autojs.autojs.devplugin.action.ReRunScriptAction"
-                    text="Rerun Script on Device" 
+                    text="Rerun Script on Device"
+                    icon="/icon/rerun.svg"
                     description="Rerun JavaScript file (.js, .cjs, .mjs) on connected devices">
             </action>
             <action id="org.autojs.autojs.devplugin.action.StopScriptAction" 
                     class="org.autojs.autojs.devplugin.action.StopScriptAction"
-                    text="Stop Script" 
+                    text="Stop Script"
+                    icon="/icon/stop.svg"
                     description="Stop running JavaScript file (.js, .cjs, .mjs) on connected devices">
             </action>
         </group>
