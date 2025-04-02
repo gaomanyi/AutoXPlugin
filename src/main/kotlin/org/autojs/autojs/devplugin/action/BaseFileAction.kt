@@ -77,18 +77,23 @@ abstract class BaseFileAction : AnAction() {
             )
             return
         }
+        //如果只有一个设备连接,就不需要选择
+        if (connectedDevices.size == 1) {
+            val device = connectedDevices[0]
+            handleSendAction(project,virtualFile,webSocketService, listOf(device))
+        }else{
+            // 显示设备选择对话框
+            val isDirectory = virtualFile?.isDirectory ?: false
+            val dialog = DeviceSelectionDialog(
+                project = project,
+                devices = connectedDevices,
+                isDirectory = isDirectory
+            )
 
-        // 显示设备选择对话框
-        val isDirectory = virtualFile?.isDirectory ?: false
-        val dialog = DeviceSelectionDialog(
-            project = project,
-            devices = connectedDevices,
-            isDirectory = isDirectory
-        )
-
-        if (dialog.showAndGet()) {
-            val selectedDevices = dialog.getSelectedDevices()
-            handleSendAction(project, virtualFile, webSocketService, selectedDevices)
+            if (dialog.showAndGet()) {
+                val selectedDevices = dialog.getSelectedDevices()
+                handleSendAction(project, virtualFile, webSocketService, selectedDevices)
+            }
         }
     }
 
@@ -322,33 +327,7 @@ abstract class BaseFileAction : AnAction() {
     protected fun getFullPath(file: VirtualFile?): String {
         return file?.path ?: "unknown"
     }
-    
-    /**
-     * 获取脚本文件的唯一标识
-     * @deprecated 使用 getFullPath 代替
-     */
-    @Deprecated("使用 getFullPath 代替", ReplaceWith("getFullPath(file)"))
-    protected fun getId(file: VirtualFile?): String {
-        return getFullPath(file)
-    }
-    
-    /**
-     * 获取脚本文件的名称（用于显示）
-     * @deprecated 使用 getFullPath 代替
-     */
-    @Deprecated("使用 getFullPath 代替", ReplaceWith("getFullPath(file)"))
-    protected fun getName(file: VirtualFile?): String {
-        return getFullPath(file)
-    }
-    
-    /**
-     * 向上查找项目根目录文件夹
-     * @deprecated 不再需要查找项目根目录
-     */
-    @Deprecated("不再需要查找项目根目录")
-    protected fun findProjectFolder(folder: VirtualFile?): VirtualFile? {
-        return folder
-    }
+
 
     override fun update(e: AnActionEvent) {
         val project = e.project
@@ -406,29 +385,4 @@ abstract class BaseFileAction : AnAction() {
             .createNotification(title, content, NotificationType.ERROR)
             .notify(project)
     }
-
-    /**
-     * 获取已选择的设备
-     */
-    protected fun getSelectedDevices(project: Project): List<ConnectedDevice> {
-        val webSocketService = SharedWebSocketService.getInstance()
-        val connectedDevices = webSocketService.getConnectedDevices()
-        
-        if (connectedDevices.isEmpty()) {
-            return emptyList()
-        }
-        
-        val dialog = DeviceSelectionDialog(
-            project = project,
-            devices = connectedDevices,
-            isDirectory = false
-        )
-        
-        return if (dialog.showAndGet()) {
-            dialog.getSelectedDevices()
-        } else {
-            emptyList()
-        }
-    }
-
 } 
