@@ -1,25 +1,23 @@
 package org.autojs.autojs.devplugin.action
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.autojs.autojs.devplugin.service.ConnectedDevice
 import org.autojs.autojs.devplugin.service.Helper
-import org.autojs.autojs.devplugin.service.WebSocketService
+import org.autojs.autojs.devplugin.service.SharedWebSocketService
 import org.autojs.autojs.devplugin.ui.DeviceSelectionDialog
-import org.autojs.autojs.devplugin.util.NotificationUtil
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.zip.ZipEntry
@@ -38,7 +36,7 @@ abstract class BaseFileAction : AnAction() {
     protected abstract fun handleSendAction(
         project: Project,
         file: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>
     )
 
@@ -61,7 +59,7 @@ abstract class BaseFileAction : AnAction() {
             return
         }
         
-        val webSocketService = getWebSocketService(project)
+        val webSocketService = SharedWebSocketService.getInstance()
 
         if (!webSocketService.isRunning()) {
             logger.warn("WebSocket server is not running")
@@ -100,7 +98,7 @@ abstract class BaseFileAction : AnAction() {
     protected fun sendFolderAsZip(
         project: Project,
         folder: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>,
         generateCommandFunc: (String, String) -> String
     ) {
@@ -209,7 +207,7 @@ abstract class BaseFileAction : AnAction() {
     protected fun sendScriptFile(
         project: Project,
         file: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>,
         commandType: (String, String) -> String
     ) {
@@ -266,7 +264,7 @@ abstract class BaseFileAction : AnAction() {
     protected fun sendControlCommand(
         project: Project,
         file: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>,
         commandType: (String) -> String
     ) {
@@ -355,12 +353,12 @@ abstract class BaseFileAction : AnAction() {
     override fun update(e: AnActionEvent) {
         val project = e.project
         val virtualFile = e.getData(CommonDataKeys.VIRTUAL_FILE)
-        val webSocketService = project?.let { WebSocketService.getInstance(it) }
+        val webSocketService = SharedWebSocketService.getInstance()
         
         // 判断动作是否可用
         e.presentation.isEnabled = project != null && 
                                   (virtualFile == null || isActionAvailable(virtualFile)) && 
-                                  webSocketService?.isRunning() == true &&
+                                  webSocketService.isRunning() == true &&
                                   webSocketService.getConnectedDeviceCount() > 0
     }
     
@@ -410,17 +408,10 @@ abstract class BaseFileAction : AnAction() {
     }
 
     /**
-     * 获取WebSocketService实例
-     */
-    protected fun getWebSocketService(project: Project): WebSocketService {
-        return WebSocketService.getInstance(project)
-    }
-
-    /**
      * 获取已选择的设备
      */
     protected fun getSelectedDevices(project: Project): List<ConnectedDevice> {
-        val webSocketService = getWebSocketService(project)
+        val webSocketService = SharedWebSocketService.getInstance()
         val connectedDevices = webSocketService.getConnectedDevices()
         
         if (connectedDevices.isEmpty()) {
@@ -439,47 +430,5 @@ abstract class BaseFileAction : AnAction() {
             emptyList()
         }
     }
-    
-    /**
-     * 发送文本命令到所选设备，不包含二进制数据
-     */
-    protected fun sendTextCommandToDevices(
-        project: Project,
-        webSocketService: WebSocketService,
-        selectedDevices: List<ConnectedDevice>,
-        commandJson: String
-    ) {
-        try {
-            // 检查WebSocket服务器状态
-            if (!webSocketService.isRunning()) {
-                Messages.showErrorDialog(project, "WebSocket服务器未运行，请先启动服务器", "操作失败")
-                return
-            }
 
-            // 检查已连接设备
-            if (webSocketService.getConnectedDeviceCount() == 0) {
-                Messages.showErrorDialog(project, "没有已连接的设备", "操作失败")
-                return
-            }
-
-            // 确定目标设备
-            val targetDevices = if (selectedDevices.isEmpty()) {
-                webSocketService.getConnectedDevices()
-            } else {
-                selectedDevices
-            }
-
-            // 使用WebSocketService直接发送文本命令
-            scope.launch {
-                try {
-                    webSocketService.sendTextCommandToDevices(commandJson, targetDevices)
-                    NotificationUtil.showInfoNotification(project, "操作成功", "命令已发送到设备")
-                } catch (e: Exception) {
-                    NotificationUtil.showErrorNotification(project, "发送失败", "发送命令失败: ${e.message}")
-                }
-            }
-        } catch (e: Exception) {
-            NotificationUtil.showErrorNotification(project, "操作错误", "发送命令时发生错误: ${e.message}")
-        }
-    }
 } 

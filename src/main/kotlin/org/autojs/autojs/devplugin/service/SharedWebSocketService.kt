@@ -17,10 +17,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.autojs.autojs.devplugin.message.*
+import org.autojs.autojs.devplugin.settings.AutoXSettings
 import org.autojs.autojs.devplugin.util.NetworkUtil
 import java.net.InetSocketAddress
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
+
+// 表示连接的设备信息
+data class ConnectedDevice(
+    val sessionId: String,
+    val deviceName: String,
+    val appVersion: String
+)
 
 /**
  * 应用级别的WebSocket服务
@@ -39,11 +47,19 @@ class SharedWebSocketService : Disposable {
     // 存储连接设备的详细信息
     private val connectedDevices = ConcurrentHashMap<String, ConnectedDevice>()
     private var serverPort = 0
-    private var isRunning = false
+    private var isRunning = false // WebSocket服务是否正在运行
 
-    // 添加连接状态监听器 - 每个Project实例注册自己的监听器
-    private val connectionListeners = ConcurrentHashMap<String, MutableList<ConnectionListener>>()
+    private val settings = AutoXSettings.getInstance()
 
+    // 添加连接状态监听器
+    private val connListeners = mutableListOf<ConnectionListener>()
+
+    init {
+        // Auto-start the server if enabled in settings
+        if (settings.state.autoStartServer) {
+            start(settings.state.port)
+        }
+    }
     fun start(port: Int) {
         if (isRunning) {
             logger.info("WebSocket server is already running")
@@ -87,6 +103,7 @@ class SharedWebSocketService : Disposable {
 
                 serverPort = inetSocketAddress.port
                 isRunning = true
+                connListeners.forEach { it.onServiceStarted() }
                 logger.info("Shared WebSocket server started on port: $serverPort")
             } catch (e: Exception) {
                 logger.error("Failed to start Shared WebSocket server", e)
@@ -122,6 +139,7 @@ class SharedWebSocketService : Disposable {
                 connections.clear()
                 connectedDevices.clear()
                 isRunning = false
+                connListeners.forEach { it.onServiceStopped() }
                 serverPort = 0
 
                 // 通知所有连接断开
@@ -187,13 +205,18 @@ class SharedWebSocketService : Disposable {
     }
 
     /**
-     * 向设备列表发送命令
+     * 向设备列表发送文本命令（不含二进制数据的命令）
+     * 例如：保存脚本、运行脚本、停止脚本等
      */
-    fun sendCommandToDevices(json: String, targetDevices: List<ConnectedDevice>) {
+    fun sendTextCommandToDevices(
+        json: String,
+        targetDevices: List<ConnectedDevice>
+    ) {
         if (!isRunning || connections.isEmpty()) {
-            logger.warn("Cannot send command: server not running or no connections")
+            logger.warn("Cannot send text command: server not running or no connections")
             return
         }
+
         scope.launch {
             try {
                 if (targetDevices.isEmpty()) {
@@ -201,16 +224,22 @@ class SharedWebSocketService : Disposable {
                     connections.forEach { (sessionId, session) ->
                         session.send(json)
                     }
+                    logger.info("Text command sent to all connected devices")
                 } else {
                     // Send to specified devices only
                     for (device in targetDevices) {
                         val sessionId = device.sessionId
                         val session = connections[sessionId]
-                        session?.send(json)
+                        if (session != null) {
+                            session.send(json)
+                            logger.info("Text command sent to device: ${device.deviceName}")
+                        } else {
+                            logger.warn("Device ${device.deviceName} not connected, cannot send command")
+                        }
                     }
                 }
             } catch (e: Exception) {
-                logger.error("Error sending command to devices", e)
+                logger.error("Error sending text command", e)
             }
         }
     }
@@ -259,37 +288,26 @@ class SharedWebSocketService : Disposable {
         session.send(json)
     }
 
-    // 添加连接监听器，标识特定项目的监听器
-    fun addConnectionListener(projectId: String, listener: ConnectionListener) {
-        connectionListeners.computeIfAbsent(projectId) { mutableListOf() }.add(listener)
+    // 移除连接监听器
+    fun addConnectionListener(listener: ConnectionListener) {
+        connListeners.add(listener)
     }
 
     // 移除连接监听器
-    fun removeConnectionListener(projectId: String, listener: ConnectionListener) {
-        connectionListeners[projectId]?.remove(listener)
-        // 如果项目的监听器为空，移除该项目
-        if (connectionListeners[projectId]?.isEmpty() == true) {
-            connectionListeners.remove(projectId)
-        }
-    }
-
-    // 清除特定项目的所有监听器
-    fun clearProjectListeners(projectId: String) {
-        connectionListeners.remove(projectId)
+    fun removeConnectionListener(listener: ConnectionListener) {
+        connListeners.remove(listener)
     }
 
     // 通知连接建立
     private fun notifyConnectionEstablished(sessionId: String, device: ConnectedDevice) {
-        connectionListeners.forEach { (_, listeners) ->
-            listeners.forEach { it.onConnectionEstablished(sessionId, device) }
-        }
+        // 通知当前项目的所有监听器
+        connListeners.forEach { it.onConnectionEstablished(sessionId, device) }
     }
 
     // 通知连接关闭
     private fun notifyConnectionClosed(sessionId: String) {
-        connectionListeners.forEach { (_, listeners) ->
-            listeners.forEach { it.onConnectionClosed(sessionId) }
-        }
+        // 通知当前项目的所有监听器
+        connListeners.forEach { it.onConnectionClosed(sessionId) }
     }
 
     private suspend fun handleIncomingMessage(message: String, sessionId: String) {
@@ -416,51 +434,12 @@ class SharedWebSocketService : Disposable {
         }
     }
 
-    /**
-     * 向设备列表发送文本命令（不含二进制数据的命令）
-     * 例如：保存脚本、运行脚本、停止脚本等
-     */
-    fun sendTextCommandToDevices(
-        json: String,
-        targetDevices: List<ConnectedDevice>
-    ) {
-        if (!isRunning || connections.isEmpty()) {
-            logger.warn("Cannot send text command: server not running or no connections")
-            return
-        }
 
-        scope.launch {
-            try {
-                if (targetDevices.isEmpty()) {
-                    // Send to all devices if no target devices specified
-                    connections.forEach { (sessionId, session) ->
-                        session.send(json)
-                    }
-                    logger.info("Text command sent to all connected devices")
-                } else {
-                    // Send to specified devices only
-                    for (device in targetDevices) {
-                        val sessionId = device.sessionId
-                        val session = connections[sessionId]
-                        if (session != null) {
-                            session.send(json)
-                            logger.info("Text command sent to device: ${device.deviceName}")
-                        } else {
-                            logger.warn("Device ${device.deviceName} not connected, cannot send command")
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                logger.error("Error sending text command", e)
-            }
-        }
-    }
 
     // 通知日志消息接收
     private fun notifyLogReceived(sessionId: String, deviceName: String, logMessage: String) {
-        connectionListeners.forEach { (_, listeners) ->
-            listeners.forEach { it.onLogReceived(sessionId, deviceName, logMessage) }
-        }
+        // 通知当前项目的所有监听器
+        connListeners.forEach { it.onLogReceived(sessionId, deviceName, logMessage) }
     }
 
     override fun dispose() {
@@ -470,4 +449,19 @@ class SharedWebSocketService : Disposable {
     companion object {
         fun getInstance(): SharedWebSocketService = ApplicationManager.getApplication().service()
     }
-} 
+}
+
+// 连接状态监听器接口
+interface ConnectionListener {
+    //通知服务启动了
+    fun onServiceStarted()
+    //通知服务关闭了
+    fun onServiceStopped()
+
+    //通知连接建立了
+    fun onConnectionEstablished(sessionId: String, device: ConnectedDevice)
+    //通知连接关闭了
+    fun onConnectionClosed(sessionId: String)
+    // 添加日志消息处理方法，默认实现为空
+    fun onLogReceived(sessionId: String, deviceName: String, logMessage: String) {}
+}

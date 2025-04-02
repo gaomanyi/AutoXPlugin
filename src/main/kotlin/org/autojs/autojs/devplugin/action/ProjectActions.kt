@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.autojs.autojs.devplugin.message.Command
 import org.autojs.autojs.devplugin.service.ConnectedDevice
-import org.autojs.autojs.devplugin.service.WebSocketService
+import org.autojs.autojs.devplugin.service.SharedWebSocketService
 
 /**
  * 保存项目操作 - 将文件夹作为项目发送到设备
@@ -15,7 +15,7 @@ class SaveProjectAction : BaseFileAction() {
     override fun handleSendAction(
         project: Project,
         file: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>
     ) {
         if (file?.isDirectory == true) {
@@ -51,7 +51,7 @@ class RunProjectAction : BaseFileAction() {
     override fun handleSendAction(
         project: Project,
         file: VirtualFile?,
-        webSocketService: WebSocketService,
+        webSocketService: SharedWebSocketService,
         selectedDevices: List<ConnectedDevice>
     ) {
         if (file == null) return

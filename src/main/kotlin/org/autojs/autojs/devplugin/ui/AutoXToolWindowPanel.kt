@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import org.autojs.autojs.devplugin.message.Command
 import org.autojs.autojs.devplugin.service.ConnectedDevice
 import org.autojs.autojs.devplugin.service.ConnectionListener
-import org.autojs.autojs.devplugin.service.WebSocketService
+import org.autojs.autojs.devplugin.service.SharedWebSocketService
 import org.autojs.autojs.devplugin.settings.AutoXSettings
 import org.autojs.autojs.devplugin.util.NotificationUtil
 import org.autojs.autojs.devplugin.util.QRCodeUtil
@@ -31,7 +31,6 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
-import java.awt.event.ActionListener
 import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,8 +45,8 @@ import javax.swing.text.StyledDocument
 
 class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable, ConnectionListener {
     private val logger = Logger.getInstance(AutoXToolWindowPanel::class.java)
-    private val webSocketService = WebSocketService.getInstance(project)
-    private val settings = AutoXSettings.getInstance(project)
+    private val webSocketService = SharedWebSocketService.getInstance()
+    private val settings = AutoXSettings.getInstance()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     private var qrCodeImage: BufferedImage? = null
@@ -90,8 +89,8 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
         autoResizeMode = JTable.AUTO_RESIZE_LAST_COLUMN
         
         // 设置断开按钮的渲染器和编辑器
-        getColumnModel().getColumn(2).cellRenderer = ButtonRenderer()
-        getColumnModel().getColumn(2).cellEditor = ButtonEditor()
+        columnModel.getColumn(2).cellRenderer = ButtonRenderer()
+        columnModel.getColumn(2).cellEditor = ButtonEditor()
         
         // 调整列宽
         columnModel.getColumn(0).preferredWidth = 180  // 设备名称列宽
@@ -397,7 +396,15 @@ class AutoXToolWindowPanel(private val project: Project) : JPanel(), Disposable,
         stopAllScriptsButton.isEnabled = isEnabled
         stopAllScriptsButton.icon = if (isEnabled) stopActiveIcon else stopDisabledIcon
     }
-    
+
+    override fun onServiceStarted() {
+        syncServiceState()
+    }
+
+    override fun onServiceStopped() {
+        syncServiceState()
+    }
+
     // 实现 ConnectionListener 接口
     override fun onConnectionEstablished(sessionId: String, device: ConnectedDevice) {
         // 添加新连接的设备

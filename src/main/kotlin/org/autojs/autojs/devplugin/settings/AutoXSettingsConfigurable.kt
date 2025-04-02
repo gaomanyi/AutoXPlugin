@@ -1,15 +1,14 @@
 package org.autojs.autojs.devplugin.settings
 
 import com.intellij.openapi.options.Configurable
-import com.intellij.openapi.project.Project
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.text
 import javax.swing.JComponent
 
-class AutoXSettingsConfigurable(project: Project) : Configurable {
-    private var settings = AutoXSettings.getInstance(project)
+class AutoXSettingsConfigurable : Configurable {
+    private var settings = AutoXSettings.getInstance()
     private var port = settings.state.port
     private var autoStart = settings.state.autoStartServer
     

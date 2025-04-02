@@ -1,14 +1,10 @@
 package org.autojs.autojs.devplugin.settings
 
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.components.service
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.*
 import com.intellij.util.xmlb.XmlSerializerUtil
 
-@Service(Service.Level.PROJECT)
+@Service(Service.Level.APP)
 @State(
     name = "org.autojs.autojs.devplugin.settings.AutoXSettings",
     storages = [Storage("AutoXPluginSettings.xml")]
@@ -29,6 +25,6 @@ class AutoXSettings : PersistentStateComponent<AutoXSettings.State> {
     }
     
     companion object {
-        fun getInstance(project: Project): AutoXSettings = project.service()
+        fun getInstance(): AutoXSettings = ApplicationManager.getApplication().service()
     }
 } 
