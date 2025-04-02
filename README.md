@@ -5,7 +5,7 @@
 
 这是一个IntelliJ IDEA插件，用于开发AutoX.js的配套插件,如果你还没有AutoX.js程序,请访问[AutoX.js](https://github.com/aiselp/AutoX)
 
-[🌟 English](README_en.md) | [🌏 中文](README.md) | [🌏 日本語](README_JP.md) | [�� 한국인](README_ko.md) | [🌏 Русский](README_ru.md) | [🌏 Français](README_fr.md)
+[🌟 English](README_en.md) | [🌏 中文](README.md) | [🌏 日本語](README_JP.md) | [🌏 한국인](README_ko.md) | [🌏 Русский](README_ru.md) | [🌏 Français](README_fr.md)
 > [!TIP]
 > 暂时没有适配USB调试开发,只支持局域网调试
 
@@ -41,11 +41,6 @@
 <b>有效的json文件上右键</b><br>
 <img src="img/%E6%88%AA%E5%B1%8F2025-04-02%2017.41.36.png" width="500" alt="WeChat"><br>
 <em>在有效的json文件上右键,可以把所在的目录保存到设备</em>
-</td>
-<!-- <td align="center">
-<b>ETC</b><br>
-<img src="img/etc.png" width="100" alt="ETC Address"><br>
-ETC: 0xa2745f4CD5d32310AC01694ABDB28bA32D125a6b
 </td>
 </tr>
 </table>
@@ -85,6 +80,7 @@ ETC: 0xa2745f4CD5d32310AC01694ABDB28bA32D125a6b
 
    ```bash
    ./gradlew buildPlugin
+   ```
 
 ## License
 
