@@ -1,7 +1,7 @@
 # AutoXPlugin для IntelliJ IDEA
 
-[![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)][jb:github]
-[![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)][jb:docs]
+![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)
+![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)
 
 Это плагин для IntelliJ IDEA, предназначенный для разработки дополнительных плагинов к AutoX.js. Если у вас еще нет программы AutoX.js, посетите [AutoX.js](https://github.com/aiselp/AutoX)
 

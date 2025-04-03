@@ -1,7 +1,7 @@
 # AutoXPlugin for IntelliJ IDEA
-
-[![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)][jb:github]
-[![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)][jb:docs]
+<!-- Plugin description -->
+![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)
+![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)
 
 This is an IntelliJ IDEA plugin for developing AutoX.js companion plugins. If you don't have the AutoX.js program yet, please visit [AutoX.js](https://github.com/aiselp/AutoX)
 
@@ -16,6 +16,8 @@ This is an IntelliJ IDEA plugin for developing AutoX.js companion plugins. If yo
 - Right-click any file to send it to connected devices
 - Real-time file transfer over the local network
 - Multi-language support, the plugin will automatically switch languages after changing the IDE language
+
+<!-- Plugin description end -->
 
 ## Screenshots
 <div align="center">

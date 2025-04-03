@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
-    <id>org.autojs.autojs.devplugin</id>
-    <name>AutoX</name>
-    <vendor>AutoJS</vendor>
-    <description>
-        ### AutoX 开发插件
-        可以访问 https://github.com/aiselp/AutoX 下载AutoX.js
-    </description>
+    <!--  以下被注释的,是在gradle中配置了  -->
+    <!--    <id>org.autojs.autojs.devplugin</id>-->
+    <!--    <name>AutoX</name>-->
+<!--    <description>-->
+<!--        ### AutoX 开发插件-->
+<!--        可以访问 https://github.com/aiselp/AutoX 下载AutoX.js-->
+<!--    </description>-->
+<!--    <vendor>WgoW</vendor>-->
     <depends>com.intellij.modules.platform</depends>
     <resource-bundle>messages.LanguageBundle</resource-bundle>
 
@@ -15,11 +16,11 @@
                     icon="/icon/autojs.svg"
                     anchor="right"
                     factoryClass="org.autojs.autojs.devplugin.toolwindow.AutoXToolWindowFactory"/>
-        <projectConfigurable parentId="tools" 
+        <projectConfigurable parentId="tools"
                              instance="org.autojs.autojs.devplugin.settings.AutoXSettingsConfigurable"
-                             id="org.autojs.autojs.devplugin.settings.AutoXSettingsConfigurable" 
+                             id="org.autojs.autojs.devplugin.settings.AutoXSettingsConfigurable"
                              displayName="AutoX Plugin"/>
-        <notificationGroup id="AutoX Plugin Notifications" 
+        <notificationGroup id="AutoX Plugin Notifications"
                            displayType="BALLOON"/>
     </extensions>
 
@@ -30,46 +31,46 @@
                icon="/icon/autojs.svg"
                popup="true">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="org.autojs.autojs.devplugin.action.SaveProjectAction" 
+            <action id="org.autojs.autojs.devplugin.action.SaveProjectAction"
                     class="org.autojs.autojs.devplugin.action.SaveProjectAction"
                     icon="/icon/save.svg"
-                    text="Save Project to Device" 
+                    text="Save Project to Device"
                     description="Save project to connected devices">
             </action>
-            <action id="org.autojs.autojs.devplugin.action.RunProjectAction" 
+            <action id="org.autojs.autojs.devplugin.action.RunProjectAction"
                     class="org.autojs.autojs.devplugin.action.RunProjectAction"
                     text="Run Project on Device"
                     icon="/icon/run.svg"
                     description="Run project on connected devices (works on project folders or package.json/project.json files)">
             </action>
         </group>
-        
+
         <!-- JavaScript文件操作组 -->
-        <group id="org.autojs.autojs.devplugin.action.ScriptActionsGroup" 
+        <group id="org.autojs.autojs.devplugin.action.ScriptActionsGroup"
                text="AutoX File"
                icon="/icon/autojs.svg"
-               description="AutoX Script Actions for JavaScript files (.js, .cjs, .mjs)" 
+               description="AutoX Script Actions for JavaScript files (.js, .cjs, .mjs)"
                popup="true">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-            <action id="org.autojs.autojs.devplugin.action.SaveScriptAction" 
+            <action id="org.autojs.autojs.devplugin.action.SaveScriptAction"
                     class="org.autojs.autojs.devplugin.action.SaveScriptAction"
                     text="Save Script to Device"
                     icon="/icon/save.svg"
                     description="Save JavaScript file (.js, .cjs, .mjs) to connected devices">
             </action>
-            <action id="org.autojs.autojs.devplugin.action.RunScriptAction" 
+            <action id="org.autojs.autojs.devplugin.action.RunScriptAction"
                     class="org.autojs.autojs.devplugin.action.RunScriptAction"
                     text="Run Script on Device"
                     icon="/icon/run.svg"
                     description="Run JavaScript file (.js, .cjs, .mjs) on connected devices">
             </action>
-            <action id="org.autojs.autojs.devplugin.action.ReRunScriptAction" 
+            <action id="org.autojs.autojs.devplugin.action.ReRunScriptAction"
                     class="org.autojs.autojs.devplugin.action.ReRunScriptAction"
                     text="Rerun Script on Device"
                     icon="/icon/rerun.svg"
                     description="Rerun JavaScript file (.js, .cjs, .mjs) on connected devices">
             </action>
-            <action id="org.autojs.autojs.devplugin.action.StopScriptAction" 
+            <action id="org.autojs.autojs.devplugin.action.StopScriptAction"
                     class="org.autojs.autojs.devplugin.action.StopScriptAction"
                     text="Stop Script"
                     icon="/icon/stop.svg"

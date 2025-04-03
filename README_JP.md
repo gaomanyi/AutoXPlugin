@@ -1,7 +1,7 @@
 # IntelliJ IDEA用のAutoXPlugin
-
-[![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)][jb:github]
-[![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)][jb:docs]
+<!-- Plugin description -->
+![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)
+![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)
 
 これはAutoX.jsの連携プラグインを開発するためのIntelliJ IDEAプラグインです。AutoX.jsプログラムをまだお持ちでない場合は、[AutoX.js](https://github.com/aiselp/AutoX)をご覧ください。
 
@@ -17,6 +17,7 @@
 - ローカルネットワークを介したリアルタイムのファイル転送
 - 多言語サポート、IDEの言語を変更するとプラグインが自動的に言語を切り替える
 
+<!-- Plugin description end -->
 ## スクリーンショット
 <div align="center">
 <table>

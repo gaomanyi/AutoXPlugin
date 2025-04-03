@@ -1,7 +1,7 @@
 # IntelliJ IDEA용 AutoXPlugin
-
-[![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)][jb:github]
-[![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)][jb:docs]
+<!-- Plugin description -->
+![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)
+![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)
 
 이것은 AutoX.js 동반 플러그인 개발을 위한 IntelliJ IDEA 플러그인입니다. AutoX.js 프로그램이 아직 없다면 [AutoX.js](https://github.com/aiselp/AutoX)를 방문하세요.
 
@@ -17,6 +17,7 @@
 - 로컬 네트워크를 통한 실시간 파일 전송
 - 다국어 지원, IDE 언어 변경 후 플러그인이 자동으로 언어 전환
 
+<!-- Plugin description end -->
 ## 스크린샷
 <div align="center">
 <table>

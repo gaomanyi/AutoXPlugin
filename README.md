@@ -1,7 +1,7 @@
 # AutoXPlugin for IntelliJ IDEA
-
-[![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)][jb:github]
-[![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)][jb:docs]
+<!-- Plugin description -->
+![official JetBrains project](https://jb.gg/badges/official-flat-square.svg)
+![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg?style=flat-square)
 
 这是一个IntelliJ IDEA插件，用于开发AutoX.js的配套插件,如果你还没有AutoX.js程序,请访问[AutoX.js](https://github.com/aiselp/AutoX)
 
@@ -15,7 +15,10 @@
 - 生成二维码，方便移动设备连接
 - 右键单击任意文件，即可发送到已连接的设备
 - 通过本地网络进行实时文件传输
-- 支持多语言,修改 idea 的语言后,插件会自动切换语言 
+- 支持多语言,修改 idea 的语言后,插件会自动切换语言
+
+
+<!-- Plugin description end -->
 
 ## 界面截图
 <div align="center">
@@ -82,12 +85,11 @@
    ./gradlew buildPlugin
    ```
 
-## License
+## 许可证
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+该项目是MIT许可证 - 有关详细信息，请参见许可证文件
 
-## Acknowledgments
+## 感谢
 
-感谢 
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) 示例代码库
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) 一个同功能的VSCode插件fork

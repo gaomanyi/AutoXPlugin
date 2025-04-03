@@ -40,3 +40,10 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Plugin Configuration Files ###
+sign-plugin.properties
+publish-plugin.properties
+/.intellijPlatform/coroutines-javaagent.lock
+/.intellijPlatform/localPlatformArtifacts/WS-243.26053.12/localIde-WS-WS-243.26053.12.xml
+/.intellijPlatform/self-update.lock
