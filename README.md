@@ -92,4 +92,5 @@
 ## 感谢
 
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) 示例代码库
+
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) 一个同功能的VSCode插件fork

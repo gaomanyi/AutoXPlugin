@@ -91,4 +91,5 @@
 
 다음에 감사드립니다:
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) 예제 코드 저장소
+
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) 유사한 기능을 가진 VSCode 플러그인 

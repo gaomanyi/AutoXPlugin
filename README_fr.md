@@ -90,4 +90,5 @@ Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
 
 Merci à
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) dépôt d'exemples de code
+
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) plugin VSCode avec des fonctionnalités similaires 

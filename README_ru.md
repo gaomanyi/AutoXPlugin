@@ -90,4 +90,5 @@
 
 Благодарим
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) репозиторий примеров кода
+
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) плагин VSCode с аналогичной функциональностью 

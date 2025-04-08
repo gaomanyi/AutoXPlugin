@@ -91,4 +91,5 @@
 
 以下に感謝します：
 [jetbrains sample](https://github.com/JetBrains/intellij-sdk-code-samples) サンプルコードリポジトリ
+
 [https://github.com/wilinz/Auto.js-VSCode-Extension](https://github.com/wilinz/Auto.js-VSCode-Extension) 同様の機能を持つVSCodeプラグイン 
