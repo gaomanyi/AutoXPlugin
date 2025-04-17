@@ -72,8 +72,8 @@ intellijPlatform{
         //从readme中截取 start 到 end的文本设置到插件描述中
         description = providers.provider {
             val files = listOf(
-                layout.projectDirectory.file("README.md"),
                 layout.projectDirectory.file("README_en.md"),
+                layout.projectDirectory.file("README.md"),
                 layout.projectDirectory.file("README_JP.md"),
                 layout.projectDirectory.file("README_ko.md")
             )
