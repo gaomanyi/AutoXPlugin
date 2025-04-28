@@ -93,7 +93,7 @@ intellijPlatform{
             // 读取所有文件内容并提取描述部分
             files.map { file ->
                 providers.fileContents(file).asText.get()
-            }.map(::extractDescription).joinToString("\n")
+            }.joinToString("\n", transform = ::extractDescription)
         }
 
 
